@@ -1,60 +1,48 @@
-# Hand Gesture Recognition App
+# Sign Language Classifier
 
-A Flask-based hand gesture recognition application using MediaPipe and XGBoost.
+Flask API that classifies a hand gesture from an uploaded image using MediaPipe hand landmarks and an XGBoost model.
 
-## Deployment to Render
+## Endpoints
 
-### Prerequisites
-- Git installed
-- GitHub/GitLab account
-- Render account (free tier available)
+- GET / (health check)
+- POST /predict (multipart form-data with key "image")
 
-### Steps to Deploy
-
-1. **Initialize Git Repository (if not already done)**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   ```
-
-2. **Push to GitHub**
-   ```bash
-   # Create a new repository on GitHub first, then:
-   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-   git branch -M main
-   git push -u origin main
-   ```
-
-3. **Deploy on Render**
-   - Go to [render.com](https://render.com)
-   - Click "New +" → "Web Service"
-   - Connect your GitHub repository
-   - Render will auto-detect the Dockerfile
-   - Click "Create Web Service"
-   - Wait for deployment (5-10 minutes)
-
-### Alternative: Manual Render Setup
-
-If `render.yaml` doesn't auto-configure:
-- **Environment**: Docker
-- **Build Command**: (leave blank - uses Dockerfile)
-- **Start Command**: (leave blank - uses Dockerfile CMD)
-- **Plan**: Free
-
-## Local Development
+Example:
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+curl -X POST \
+  -F "image=@/path/to/hand.jpg" \
+  http://localhost:3000/predict
+```
 
-# Run the app
+## Run locally (no Docker)
+
+```bash
+pip install -r requirements.txt
 python api.py
 ```
 
-## Files
-- `api.py` - Main Flask API
-- `app.py` - Alternative Flask app with UI
-- `Dockerfile` - Container configuration
-- `requirements.txt` - Python dependencies
-- `*.pkl` - ML model files (XGBoost model, scaler, class mappings)
+## Run locally (Docker)
+
+```bash
+docker build -t signlanguage-api .
+docker run -p 3000:10000 -e PORT=10000 signlanguage-api
+```
+
+## Deploy to Render
+
+This repo includes a Dockerfile and render.yaml.
+
+1) Push to GitHub
+2) Render: New + -> Web Service -> Connect repo
+3) Environment: Docker
+4) Deploy
+
+Render sets $PORT automatically. The container starts Gunicorn binding to 0.0.0.0:$PORT.
+
+## Model files
+
+These files must be present (included in this repo):
+- hand_xgb_model.pkl
+- scaler.pkl
+- class_to_idx.pkl
