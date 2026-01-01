@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hand Gesture Recognition</title>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 50px; }
+        input, button { margin: 10px; padding: 10px; font-size: 16px; }
+        #result { font-size: 24px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Hand Gesture Recognition</h1>
+    <form id="upload-form">
+        <input type="file" name="image" id="image" accept="image/*" required>
+        <br>
+        <button type="submit">Predict</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById("upload-form");
+        const resultDiv = document.getElementById("result");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById("image");
+            const formData = new FormData();
+            formData.append("image", fileInput.files[0]);
+
+            resultDiv.textContent = "Predicting...";
+
+            const response = await fetch("/predict", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.predicted_class) {
+                resultDiv.textContent = "Predicted Class: " + data.predicted_class;
+            } else if (data.error) {
+                resultDiv.textContent = "Error: " + data.error;
+            }
+        });
+    </script>
+</body>
+</html>
